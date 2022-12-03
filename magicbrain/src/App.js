@@ -10,12 +10,12 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <ParticlesBg type="cobweb" num={250} bg={true} />
         <Navigation />
         <Logo />
         <Rank />
         <ImageLinkForm />
         {/* <FaceRecognition /> */}
-        <ParticlesBg type="cobweb" num={250} bg={true} />
       </div>
     );
     }
