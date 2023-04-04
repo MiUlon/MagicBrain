@@ -28,7 +28,7 @@ class SigIn extends React.Component {
         })
             .then(response => response.json())
                 .then(data => {
-                    if (data === 'Success') {
+                    if (data) {
                         this.props.onRouteChange('home');
                     }
             }) 
