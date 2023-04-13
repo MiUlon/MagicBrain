@@ -68,12 +68,17 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
     const { name, email, password } = req.body;
-    postgreSQL('users').insert({
-        name: name,
-        email: email,
-        joined: new Date()
-    }).then(console.log)
-    res.json(database.users[database.users.length-1]);
+    postgreSQL('users')
+        .returning('*')
+        .insert({
+            name: name,
+            email: email,
+            joined: new Date()
+        })
+        .then(user => {
+            res.json(user[0]);
+        })
+        .catch(err => res.status(400).json('Cannot register.'));
 });
 
 app.get('/profile/:id', (req, res) => {
