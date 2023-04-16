@@ -20,50 +20,27 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const database = {
-    users: [
-        {
-            id: '1',
-            name: 'Mindaugas',
-            email: 'Mindaugas@gmail.com',
-            password: 'Mindaugas',
-            entries: 0,
-            joined: new Date()
-        },
-        {
-            id: '2',
-            name: 'Mindaugas2',
-            email: 'Mindaugas2@gmail.com',
-            password: 'Mindaugas2',
-            entries: 0,
-            joined: new Date()
-        }
-    ],
-    login: [
-        {
-            id: "01",
-            hash: '',
-            email: 'Mindaugas@gmail.com'
-        }
-    ]
-};
-
 app.get('/', (req, res) => {
     res.json(database.users);
 });
 
 app.post('/signin', (req, res) => {
-    bcrypt.compare("Mindaugas3", "$2a$10$55IqoFErCnOWFLXAZAHcM.bmxuNtJw5CWfcLnLGGC2L7OVO3JAYyG", function(err, res) {
-        console.log('First guess: ', res);
-    });
-    bcrypt.compare("veggies", "$2a$10$55IqoFErCnOWFLXAZAHcM.bmxuNtJw5CWfcLnLGGC2L7OVO3JAYyG", function(err, res) {
-        console.log('Second guess: ', res);
-    });
-    if (req.body.email === database.users[0].email && req.body.password === database.users[0].password) {
-        res.json('Success');
-    } else {
-        res.status(400).json('Error logging in.');
-    };
+    postgreSQL.select('email', 'hash').from('login')
+        .where('email', '=', req.body.email)
+        .then(data => {
+            const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
+            if (isValid) {
+                return postgreSQL.select('*').from('users')
+                    .where('email', '=', req.body.email)
+                    .then(user => {
+                        res.json(user[0])
+                    })
+                    .catch(error => res.status(400).json('Cannot login'))
+            } else {
+                res.status(400).json('Cannot login')
+            }
+        })
+        .catch(error => res.status(400).json('Cannot login'))
 });
 
 app.post('/register', (req, res) => {
