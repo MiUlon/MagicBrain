@@ -8,13 +8,8 @@ import ImageLinkForm from './Components/ImageLinkForm/ImageLinkForm';
 import Rank from './Components/Rank/Rank';
 import ParticlesBg from 'particles-bg';
 import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
-import Clarifai from 'clarifai';
 
 window.process = {};
-
-const app = new Clarifai.App({
-  apiKey: '82819b6c8d2d4417abbdebb80e6a3cdc'
-});
 
 const initialState = {
   input: '',
@@ -60,7 +55,14 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input});
-    app.models.predict(Clarifai.CELEBRITY_MODEL, this.state.input)
+    fetch('http://localhost:3001/imageUrl', {
+          method: 'post',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            input: this.state.input
+          })
+    })
+    .then(response => response.json())
     .then(response => {
       if (response) {
         fetch('http://localhost:3001/image', {
